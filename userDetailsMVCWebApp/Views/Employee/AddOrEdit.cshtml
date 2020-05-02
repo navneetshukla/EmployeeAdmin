@@ -1,0 +1,119 @@
+﻿@model userDetailsMVCWebApp.Models.Employee
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<h4>Employee Form</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="AddOrEdit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="EmployeeId" />
+            <div class="form-group">
+                <label asp-for="EmployeeName" class="control-label"></label>
+                <input asp-for="EmployeeName" class="form-control" />
+                <span asp-validation-for="EmployeeName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmailId" class="control-label"></label>
+                <input asp-for="EmailId" class="form-control" />
+                <span asp-validation-for="EmailId" class="text-danger"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="Gender" class="control-label"></label>
+                    <input asp-for="Gender" class="form-control" />
+                    <span asp-validation-for="Gender" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="MarritalStatus" class="control-label"></label>
+                    <input asp-for="MarritalStatus" class="form-control" />
+                    <span asp-validation-for="MarritalStatus" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label asp-for="DOB" class="control-label"></label>
+                    <input asp-for="DOB" class="form-control" />
+                    <span asp-validation-for="DOB" class="text-danger"></span>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="Anniversary" class="control-label"></label>
+                    <input asp-for="Anniversary" class="form-control" />
+                    <span asp-validation-for="Anniversary" class="text-danger"></span>
+                </div>
+                <div>
+                    <input asp-for="fileName" hidden value="@ViewData["image"]" class="form-control" />
+                </div>
+            </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+</form>
+    </div>
+    <div class="col-md-6">
+        @using (Html.BeginForm("UploadFile", "Employee", new { employeeId = Model.EmployeeId }, FormMethod.Post, false, new { enctype = "multipart/form-data" }))
+        {
+            <div class="fileUpload btn btn-primary">
+                <span>Select Files</span><input asp-for="fileName" type="file" id="file" name="selectFiles" class="upload" onchange="DisplayFilesToUpload()" />
+            </div>
+            <span asp-validation-for="fileName" class="text-danger"></span>
+            <p id="FilesToUpload"></p>
+        }
+        @if (@ViewData["image"] != null)
+        {
+            <div class="imageBlock">
+                <a href="@ViewData["image"]" target="_blank"><img class="thumb" src="@ViewData["image"]" alt="images" /></a><br />
+
+            </div>
+            using (Html.BeginForm("DeleteImage", "Employee", new { name = ViewData["image"], id = Model.EmployeeId }, FormMethod.Post, false, new { enctype = "multipart/form-data" }))
+            {
+
+                <div class="fileUpload btn btn-danger"><span>Delete Image</span><input type="submit" name="delete" class="upload" /></div>
+            }
+        }
+
+
+
+
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script>
+
+    function deleteImage(item) {
+        var url = "/Employee/DeleteImage";
+        $.post(url, { Name: item }, function (data) {
+            window.location.href = "/Employee/Index";
+        });
+    }
+    //Lists the file name and size for all files to be uploaded by updating the <p id="FilesToUpload"></p> control
+    function DisplayFilesToUpload() {
+        var element = document.getElementById("file");
+        var html = "";
+
+        html = "<h3>Image(s) to Upload</h3>"
+        for (var i = 0; i < element.files.length; i++) {
+            html += "<strong>" + (i + 1) + "</strong>. File: ";
+            var file = element.files[i];
+            if ('name' in file) { html += file.name + " ("; }
+            if ('size' in file) { html += "size: " + file.size + " bytes)<br>"; }
+        }
+
+        html += "<div class='fileUpload btn btn-default'><span>Upload</span><input type='submit' class='upload' value='Upload'/></div>"
+        document.getElementById("FilesToUpload").innerHTML = html;
+    }
+
+</script>
